@@ -31,6 +31,11 @@
 
       hosts = lib.genAttrs hostNames (name: import (./hosts + "/${name}.nix"));
 
+      # `host` and `hostName` are the two halves of machine identity: `host` is
+      # what the machine IS (user, system, profile), `hostName` is what the
+      # machine is CALLED. hostName is passed deliberately even though no module
+      # reads it yet, so a module can key on the machine's own name without
+      # shelling out to scutil.
       mkHost = hostName: host: nix-darwin.lib.darwinSystem {
         specialArgs = { inherit host hostName; user = host.user; };
         modules = [

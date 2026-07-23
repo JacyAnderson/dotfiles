@@ -49,8 +49,17 @@ else
   echo "    new machine: $HOST (macOS user: $REAL_USER)"
   read -r -p "    profile [work]: " PROFILE
   PROFILE="${PROFILE:-work}"
-  if [ ! -f "$DIR/profiles/$PROFILE/system.nix" ]; then
-    echo "    no such profile: $PROFILE (expected profiles/$PROFILE/system.nix)"
+  # configuration.nix imports the profile's system.nix and home.nix imports its
+  # home.nix, so a half-built profile has to fail here with something actionable
+  # rather than deep inside Nix evaluation in step 4.
+  if [ ! -f "$DIR/profiles/$PROFILE/system.nix" ] || [ ! -f "$DIR/profiles/$PROFILE/home.nix" ]; then
+    echo "    The \"$PROFILE\" profile does not exist yet."
+    echo "    Create both of these files, commit them, then re-run ./bootstrap.sh:"
+    echo "      profiles/$PROFILE/system.nix   (imported by configuration.nix)"
+    echo "      profiles/$PROFILE/home.nix     (imported by home.nix)"
+    echo "    Copy profiles/personal/ as a starting point, but give this machine"
+    echo "    its own git identity - that separation is the point of profiles."
+    echo "    No host file was written."
     exit 1
   fi
   case "$(uname -m)" in
