@@ -26,8 +26,24 @@ in
     enable = true;
     autosuggestion.enable = true;      # ghost text from history
     syntaxHighlighting.enable = true;  # commands turn green when valid
+    # Brew on PATH, declared here instead of relying on an unmanaged ~/.zprofile.
+    profileExtra = ''
+      eval "$(/opt/homebrew/bin/brew shellenv)"
+    '';
     initContent = ''
       bindkey '^f' autosuggest-accept
+
+      export PATH="$HOME/.local/bin:$PATH"
+
+      # node via nvm (not nix-managed; projects pin their own node versions)
+      export NVM_DIR="$HOME/.nvm"
+      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+      export GITHUB_TOKEN="$(gh auth token)"
+
+      # Claude Code fleet helpers (ccfleet, ccpeek, ccwatch, ccnew)
+      source ~/.dotfiles/home/claude/fleet-helpers.sh
     '';
     shellAliases = {
       ".." = "cd ..";
@@ -37,6 +53,14 @@ in
       m = "git switch main";
       cc = "claude --dangerously-skip-permissions";
       co = "codex --full-auto";
+    };
+  };
+
+  programs.git = {
+    enable = true;
+    settings.user = {
+      name = "Jacy Anderson";
+      email = "jacyjamesanderson@gmail.com";
     };
   };
 
@@ -60,11 +84,14 @@ in
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.config/nvim";
   home.file.".config/herdr".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.config/herdr";
+  home.file.".tmux.conf".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.tmux.conf";
+  # ~/.claude gets exactly these two symlinks; it's Claude's mutable state dir,
+  # so everything else in home/claude/ is reached by ~/.dotfiles path instead.
   home.file.".claude/settings.json".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/.claude/settings.json";
-
   home.file.".claude/CLAUDE.md".source =
-    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/AGENTS.md";
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/claude/CLAUDE.md";
   home.file.".codex/AGENTS.md".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/AGENTS.md";
   home.file.".config/opencode/AGENTS.md".source =

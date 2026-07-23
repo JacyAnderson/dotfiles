@@ -30,6 +30,9 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
+            # Adopting onto a configured Mac: back up existing real files
+            # (~/.zshrc, ~/.claude/settings.json, ...) instead of aborting.
+            home-manager.backupFileExtension = "pre-hm";
             home-manager.extraSpecialArgs = { inherit user; };
             home-manager.users.${user} = import ./home.nix;
           }
