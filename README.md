@@ -81,20 +81,27 @@ cd dotfiles
 2. Symlinks this repo to `~/.dotfiles`.
    This has to happen before the first build, because `home.nix` points at config
    files through `~/.dotfiles`.
-3. Checks the `user` configured in `flake.nix` against your actual macOS username,
-   and offers to fix it if they differ.
+3. Registers this machine. If `hosts/<LocalHostName>.nix` already exists it just
+   checks the macOS username matches. If it doesn't, it asks which profile to use
+   and writes the file. It only ever adds a file, never edits a shared one, so
+   your checkout stays identical to git.
 4. Runs the first `darwin-rebuild switch`.
 
-After that, `darwin-rebuild` exists and you're on the normal workflow below.
+After that, `darwin-rebuild` exists and you're on the normal workflow below. Commit
+and push the new `hosts/<LocalHostName>.nix` once the build succeeds.
 
 ### Validate without applying
 
 Once Nix is installed, check that the config builds without touching the system:
 
 ```sh
-nix flake check --no-build
-nix build .#darwinConfigurations.mac.system --dry-run
+nix flake check --no-build          # evaluates every host in hosts/
+nix build .#darwinConfigurations."$(scutil --get LocalHostName)".system --dry-run
 ```
+
+`nix flake check` evaluates all hosts, which is what you want before pushing a
+change that affects other machines. The dry-run build covers only the machine in
+front of you.
 
 ## Daily use
 
@@ -111,9 +118,14 @@ running config.
 ## Repo tour
 
 - `flake.nix` - the entry point. Wires up nixpkgs, nix-darwin, home-manager, and
-  nix-homebrew, and declares the `mac` machine.
-- `configuration.nix` - system-level config: macOS defaults, Homebrew.
-- `home.nix` - user-level config: shell, packages, prompt, git identity, symlinks.
+  nix-homebrew, and turns every file in `hosts/` into a machine.
+- `hosts/<LocalHostName>.nix` - one file per machine: its macOS user, its
+  architecture, and which profile it uses. The only per-machine content in the repo.
+- `profiles/<profile>/` - what differs between contexts. `system.nix` (Homebrew)
+  and `home.nix` (git identity).
+- `configuration.nix` - system-level config shared by every machine: macOS defaults.
+- `home.nix` - user-level config shared by every machine: shell, packages, prompt,
+  symlinks.
 - `rebuild.sh` - re-applies the config after the first switch.
 - `home/` - config files symlinked into place (Neovim, WezTerm, herdr, tmux,
   Claude settings, the shared `AGENTS.md`).
