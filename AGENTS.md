@@ -1,9 +1,20 @@
 # Project notes for agents
 
-Deliberate decisions in this repo - do NOT silently revert them:
+This repo is a fork of Kun Chen's dotfiles, adapted for Jacy Anderson's machine.
+Deliberate decisions - do NOT silently revert them:
 
-- `homebrew.onActivation.cleanup = "zap"` in `configuration.nix` is intentional. It forces the good habit of declaring every Homebrew package in the Nix config instead of installing things ad-hoc, which keeps the machine reproducible. Do not soften it to `uninstall` or `none`. Users are warned about its effect in README.md; this note is for anyone tempted to change the setting itself.
-- Never commit `.no-mistakes/` validation evidence to this public repo. `.no-mistakes/` is gitignored; if a validation pipeline stages evidence into a branch, drop it before merging.
+- `homebrew.onActivation.cleanup = "zap"` in `configuration.nix` is intentional. It forces the good
+  habit of declaring every Homebrew package in the Nix config instead of installing things ad-hoc,
+  which keeps the machine reproducible. Do not soften it to `uninstall` or `none`.
+- `~/.claude` gets exactly two symlinks (`settings.json`, `CLAUDE.md`). That directory is Claude
+  Code's mutable state; do not add more `home.file` entries into it. Helper scripts live in
+  `home/claude/` and are referenced by their `~/.dotfiles/...` paths instead (bootstrap.sh creates
+  that symlink before the first build, so the paths are guaranteed).
+- `home/AGENTS.md` is tool-agnostic on purpose - it fans out to Claude, Codex, and opencode.
+  Claude-specific policy belongs in `home/claude/CLAUDE.md`, which imports it. Do not add
+  Claude-only content to the shared file.
+- The `claude-code` cask is deliberately absent: Claude Code is installed via the native installer
+  at `~/.local/bin/claude`. Adding the cask would create a second competing install.
 
 ## Maintaining this file
 
