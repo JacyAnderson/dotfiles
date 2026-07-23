@@ -60,8 +60,16 @@ in
     };
   };
 
-  # Identity is per-context, so it lives in profiles/<profile>/home.nix.
-  programs.git.enable = true;
+  programs.git = {
+    enable = true;
+    # Identity itself is per-context, so it lives in profiles/<profile>/home.nix.
+    # This is only the safety net: without it, a machine that somehow has no
+    # configured identity silently authors commits as
+    # jacyanderson@Jacys-MacBook-Air.local, guessed from hostname and gecos.
+    # With it, git refuses and says so. A no-op while a default identity is
+    # always present, which is exactly when a safety net should be invisible.
+    settings.user.useConfigOnly = true;
+  };
 
   programs.starship = {
     enable = true;
