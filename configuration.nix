@@ -1,11 +1,15 @@
-{ user, ... }:
+{ user, host, ... }:
 
 {
+  # System-level things every machine shares. Anything per-context (Homebrew,
+  # for one) lives in the profile named by hosts/<LocalHostName>.nix.
+  imports = [ ./profiles/${host.profile}/system.nix ];
+
   # Determinate already manages the Nix daemon, so nix-darwin shouldn't.
   nix.enable = false;
 
   nixpkgs.config.allowUnfree = true;
-  nixpkgs.hostPlatform = "aarch64-darwin"; # use x86_64-darwin for Intel CPU
+  nixpkgs.hostPlatform = host.system; # aarch64-darwin, or x86_64-darwin on Intel
 
   system.primaryUser = user;
   users.users.${user} = {
@@ -20,31 +24,5 @@
     };
     dock.autohide = true;
     trackpad.Clicking = true;              # tap to click
-  };
-  nix-homebrew = {
-    enable = true;
-    inherit user;
-    autoMigrate = true;  # adopt the pre-existing /opt/homebrew install
-  };
-  homebrew = {
-    enable = true;
-    # Staged adoption: "none" for the first verified switch on this machine,
-    # then flip to "zap" (remove anything not listed here) and rebuild.
-    onActivation.cleanup = "none";
-    onActivation.autoUpdate = true;
-    onActivation.extraFlags = [ "--force" ];
-    brews = [
-      "herdr"              # agent multiplexer
-      "gh"                 # gh auth token in shell init
-      "terminal-notifier"  # fleet-notify.sh banners
-      "tmux"               # fleet workflow
-      # NOT declared, so zap removes them: boost/cmake/qt@5/pkgconf/qrencode
-      # (dead build cruft, zero dependents) and jq (nix-managed in home.nix).
-    ];
-    casks = [
-      "wezterm"  # --force adopts the manually installed app
-      # claude-code cask deliberately absent: native install at ~/.local/bin/claude
-      # font-hack-nerd-font deliberately absent: nerd-fonts.hack via home.nix
-    ];
   };
 }
