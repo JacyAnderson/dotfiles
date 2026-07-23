@@ -1,10 +1,14 @@
-{ config, pkgs, user, ... }:
+{ config, pkgs, user, host, ... }:
 
 let
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
 in
 
 {
+  # User-level things every machine shares. Anything per-context (git identity,
+  # for one) lives in the profile named by hosts/<LocalHostName>.nix.
+  imports = [ ./profiles/${host.profile}/home.nix ];
+
   home.username = user;
   home.homeDirectory = "/Users/${user}";
   home.stateVersion = "24.11";
@@ -56,13 +60,8 @@ in
     };
   };
 
-  programs.git = {
-    enable = true;
-    settings.user = {
-      name = "Jacy Anderson";
-      email = "jacyjamesanderson@gmail.com";
-    };
-  };
+  # Identity is per-context, so it lives in profiles/<profile>/home.nix.
+  programs.git.enable = true;
 
   programs.starship = {
     enable = true;

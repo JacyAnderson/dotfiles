@@ -21,6 +21,30 @@ Running the switch builds:
 - Agent configs: a tool-agnostic `home/AGENTS.md` shared by Claude, Codex, and
   opencode, plus a Claude-specific overlay in `home/claude/CLAUDE.md`
 
+## One repo, many machines
+
+Per-machine facts live in `hosts/<LocalHostName>.nix`, never in a shared file:
+
+```nix
+# hosts/Jacys-MacBook-Air.nix
+{
+  user = "jacyanderson";
+  system = "aarch64-darwin";
+  profile = "personal";
+}
+```
+
+`flake.nix` turns every file in `hosts/` into a `darwinConfigurations` entry, and
+`darwin-rebuild` picks its own entry from `scutil --get LocalHostName`, so
+`./rebuild.sh` takes no arguments on any machine.
+
+Adding a machine is **adding a file** - `bootstrap.sh` writes it for you. Nothing
+tracked and shared is ever rewritten to describe one machine, which is what lets a
+second checkout keep pulling cleanly forever.
+
+Whatever differs between contexts lives in `profiles/<profile>/`: `system.nix` for
+the system layer (Homebrew) and `home.nix` for the user layer (git identity).
+
 ## How this was adopted (not a fresh machine)
 
 This config was adopted onto an already-configured Mac, which is worth knowing if
@@ -28,18 +52,20 @@ you ever repeat the process:
 
 1. Everything already working (Homebrew leaves, shell exports, Claude Code setup,
    tmux config, git identity) was either declared in the config or deliberately shed.
-2. The first `darwin-rebuild switch` ran with `homebrew.onActivation.cleanup = "none"`.
-3. Only after verifying nothing broke was cleanup flipped to `"zap"`.
+2. The first `darwin-rebuild switch` ran with `homebrew.onActivation.cleanup = "none"`,
+   which is where it still sits.
+3. The remaining step is flipping cleanup to `"zap"` once `brews` and `casks` are
+   confirmed complete.
 
 `zap` means: every switch removes any Homebrew package or cask not listed in
-`configuration.nix`. That is intentional - it forces every package to be declared.
-Read `brews` and `casks` before running a switch on a machine with existing
+`profiles/<profile>/system.nix`. That is intentional - it forces every package to be
+declared. Read `brews` and `casks` before running a switch on a machine with existing
 Homebrew packages.
 
 ## Prerequisites
 
-- Apple Silicon Mac. For Intel, set `nixpkgs.hostPlatform = "x86_64-darwin";` in
-  `configuration.nix`.
+- Apple Silicon Mac. For Intel, set `system = "x86_64-darwin";` in that machine's
+  `hosts/<LocalHostName>.nix`.
 
 ## Fresh-machine setup
 
