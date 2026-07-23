@@ -2,6 +2,10 @@
 
 let
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
+  # Homebrew's prefix is architecture-dependent: Apple Silicon uses /opt/homebrew,
+  # Intel uses /usr/local. Derive it from the host so this shared layer is correct
+  # on any Mac, not just the current one.
+  brewPrefix = if host.system == "aarch64-darwin" then "/opt/homebrew" else "/usr/local";
 in
 
 {
@@ -31,8 +35,12 @@ in
     autosuggestion.enable = true;      # ghost text from history
     syntaxHighlighting.enable = true;  # commands turn green when valid
     # Brew on PATH, declared here instead of relying on an unmanaged ~/.zprofile.
+    # Guarded so a Homebrew-less profile (or a machine that hasn't installed it
+    # yet) is a clean no-op instead of erroring on every login shell.
     profileExtra = ''
-      eval "$(/opt/homebrew/bin/brew shellenv)"
+      if [ -x ${brewPrefix}/bin/brew ]; then
+        eval "$(${brewPrefix}/bin/brew shellenv)"
+      fi
     '';
     initContent = ''
       bindkey '^f' autosuggest-accept
@@ -44,7 +52,11 @@ in
       [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
       [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
-      export GITHUB_TOKEN="$(gh auth token)"
+      # Guarded: a no-op where gh is absent or unauthenticated, instead of
+      # printing an error on every interactive shell startup.
+      if command -v gh >/dev/null 2>&1; then
+        export GITHUB_TOKEN="$(gh auth token 2>/dev/null)"
+      fi
 
       # Claude Code fleet helpers (ccfleet, ccpeek, ccwatch, ccnew)
       source ~/.dotfiles/home/claude/fleet-helpers.sh
