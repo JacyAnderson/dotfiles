@@ -11,7 +11,7 @@ The machine is a **cache of this repo**, not a pet configured by hand. Every
 old generations stick around, which is why rollback is trivial and
 experimentation is safe.
 
-The repo has **four layers**, top of file to bottom of stack:
+The repo has **five layers**, top of file to bottom of stack:
 
 | Layer | File | Owns |
 |---|---|---|
@@ -100,9 +100,10 @@ Goal: the daily loop becomes muscle memory.
 
 ## Two habits worth keeping
 
-- The comments in `configuration.nix` (why `nix.enable = false`, why certain
-  casks are deliberately absent) are decision records. When something seems
-  weird, read the comment before searching the web.
+- The comments in `configuration.nix` (why `nix.enable = false`) and in
+  `profiles/personal/system.nix` (why certain casks are deliberately absent) are
+  decision records. When something seems weird, read the comment before
+  searching the web.
 - If you know React, you already know the model: config files are props,
   `./rebuild.sh` is the render, generations are immutable snapshots. When in
   doubt, ask "what would React do" — you'll usually guess Nix's behavior
