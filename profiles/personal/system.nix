@@ -47,7 +47,11 @@ in
   # `brew services` from treating this agent as its own.
   launchd.user.agents.postgresql.serviceConfig = {
     Label = "org.nixos.postgresql";
-    ProgramArguments = [ "${brewPrefix}/opt/postgresql@16/bin/postgres" "-D" pgDataDir ];
+    ProgramArguments = [
+      "${brewPrefix}/opt/postgresql@16/bin/postgres"
+      "-D"
+      pgDataDir
+    ];
     # Without a valid locale, postmaster aborts with "became multithreaded during startup".
     EnvironmentVariables.LC_ALL = "en_US.UTF-8";
     WorkingDirectory = brewPrefix;
