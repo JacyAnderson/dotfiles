@@ -15,6 +15,9 @@ Deliberate decisions - do NOT silently revert them:
   every Homebrew package instead of installing things ad-hoc. Do not soften that intent, and do not
   flip it to `"zap"` without first confirming `brews`/`casks` covers everything `brew leaves` and
   `brew list --cask` report, because `zap` removes anything undeclared.
+- Background services (Postgres, for one) are `launchd.user.agents` in the profile's `system.nix`,
+  never `brew services`: the Homebrew pinned through nix-homebrew's `brew-src` lock rejects newer
+  formula service blocks. Any formula such an agent runs must also be in `brews`, or `zap` removes it.
 - `~/.claude` gets exactly two symlinks (`settings.json`, `CLAUDE.md`). That directory is Claude
   Code's mutable state; do not add more `home.file` entries into it. Helper scripts live in
   `home/claude/` and are referenced by their `~/.dotfiles/...` paths instead (bootstrap.sh creates
