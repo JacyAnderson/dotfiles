@@ -43,7 +43,7 @@ tracked and shared is ever rewritten to describe one machine, which is what lets
 second checkout keep pulling cleanly forever.
 
 Whatever differs between contexts lives in `profiles/<profile>/`: `system.nix` for
-the system layer (Homebrew) and `home.nix` for the user layer (git identity).
+the system layer (Homebrew, launchd background services) and `home.nix` for the user layer (git identity).
 
 ## How this was adopted (not a fresh machine)
 
