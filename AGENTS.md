@@ -22,6 +22,9 @@ Deliberate decisions - do NOT silently revert them:
   its system and home-manager halves; a machine opts in from the `my` attrset of its host file. A
   module only appends to `homebrew.brews`/`casks`; whether Homebrew runs, and its cleanup policy,
   stay with the profile.
+- `my.privateSettings` has no URL option, and no tracked file may name a private repo's URL:
+  `bootstrap.sh` asks for it at clone time. The clone happens there, as the user, because the
+  switch runs under sudo without the user's git credentials.
 - `~/.claude` gets exactly two symlinks (`settings.json`, `CLAUDE.md`). That directory is Claude
   Code's mutable state; do not add more `home.file` entries into it. Helper scripts live in
   `home/claude/` and are referenced by their `~/.dotfiles/...` paths instead (bootstrap.sh creates
