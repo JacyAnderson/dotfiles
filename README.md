@@ -74,6 +74,7 @@ build with "The option `my.<name>' does not exist" rather than being ignored.
 | Module | What it does |
 |---|---|
 | `opensuperwhisper` | Installs the OpenSuperWhisper cask, fetches a Whisper model, and sets the hotkey and transcription preferences |
+| `privateSettings` | Runs the installer of a personal settings repo kept outside this one |
 
 ### OpenSuperWhisper
 
@@ -112,6 +113,27 @@ uninstalls the app with its zap stanza, which moves
 `~/Library/Application Support/ru.starmel.OpenSuperWhisper` (recordings included)
 to the Trash.
 
+### Private settings
+
+Some settings don't belong in a public repo: writing voice, review philosophy,
+agent skills. Keep them in your own repo with an installer script, and point
+this module at where it's cloned:
+
+```nix
+my.privateSettings = {
+  enable = true;
+  path = "code/my-settings";      # relative to your home directory
+  installer = "bin/install.sh";   # the default; must be safe to rerun
+};
+```
+
+Every switch runs that installer as you. If the repo isn't there, because the
+machine has no access to it or it hasn't been cloned yet, the switch prints a
+warning and carries on; so does a failing installer. The module has no URL
+option on purpose: `bootstrap.sh` asks for the URL when it clones, so this repo
+never names a private one. On a machine that's already set up, clone the repo
+to `path` yourself, or rerun `./bootstrap.sh`, which is safe to run again.
+
 ## How this was adopted (not a fresh machine)
 
 This config was adopted onto an already-configured Mac, which is worth knowing if
@@ -142,7 +164,7 @@ cd dotfiles
 ./bootstrap.sh
 ```
 
-`bootstrap.sh` does four things, in order:
+`bootstrap.sh` does five things, in order:
 
 1. Installs Determinate Nix, if it isn't already installed.
 2. Symlinks this repo to `~/.dotfiles`.
@@ -152,7 +174,10 @@ cd dotfiles
    checks the macOS username matches. If it doesn't, it asks which profile to use
    and writes the file. It only ever adds a file, never edits a shared one, so
    your checkout stays identical to git.
-4. Runs the first `darwin-rebuild switch`.
+4. Clones your private settings repo, if the host enables `my.privateSettings`
+   and the directory doesn't exist yet. It asks for the git URL (or reads
+   `PRIVATE_SETTINGS_URL`); a blank answer skips the clone.
+5. Runs the first `darwin-rebuild switch`.
 
 After that, `darwin-rebuild` exists and you're on the normal workflow below. Commit
 and push the new `hosts/<LocalHostName>.nix` once the build succeeds.

@@ -4,5 +4,6 @@
 {
   imports = [
     ./opensuperwhisper.nix
+    ./private-settings.nix
   ];
 }

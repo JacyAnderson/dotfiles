@@ -17,5 +17,9 @@
       enable = true;
       model = "ggml-large-v3-turbo-q5_0";
     };
+    privateSettings = {
+      enable = true;
+      path = "code/jacy-anderson-settings";
+    };
   };
 }
