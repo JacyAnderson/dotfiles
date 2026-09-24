@@ -172,11 +172,17 @@ cd dotfiles
    files through `~/.dotfiles`.
 3. Registers this machine. If `hosts/<LocalHostName>.nix` already exists it just
    checks the macOS username matches. If it doesn't, it asks which profile to use
-   and writes the file. It only ever adds a file, never edits a shared one, so
-   your checkout stays identical to git.
+   and for your private settings repo's git URL (or reads `PRIVATE_SETTINGS_URL`),
+   then writes the file. Given a URL, it also asks where to clone it (default
+   `code/<repo name>`) and turns on `my.privateSettings` with that path; the URL
+   itself is never written anywhere. A blank answer leaves the module off - add
+   `my.privateSettings` to the host file and rerun `./bootstrap.sh` to turn it on
+   later. It only ever adds a file, never edits a shared one, so your checkout
+   stays identical to git.
 4. Clones your private settings repo, if the host enables `my.privateSettings`
-   and the directory doesn't exist yet. It asks for the git URL (or reads
-   `PRIVATE_SETTINGS_URL`); a blank answer skips the clone.
+   and the directory doesn't exist yet. It reuses the URL from step 3 on a new
+   machine; otherwise it asks for it (or reads `PRIVATE_SETTINGS_URL`), and a
+   blank answer skips the clone.
 5. Runs the first `darwin-rebuild switch`.
 
 After that, `darwin-rebuild` exists and you're on the normal workflow below. Commit

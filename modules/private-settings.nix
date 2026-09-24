@@ -36,11 +36,13 @@ in
         # broken installer, should still get the rest of its configuration.
         home.activation.privateSettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
           installer=${lib.escapeShellArg "${config.home.homeDirectory}/${cfg.path}/${cfg.installer}"}
-          if [ -x "$installer" ]; then
+          if [ ! -e "$installer" ]; then
+            warnEcho "private settings: $installer not found; clone the repo there or rerun ./bootstrap.sh"
+          elif [ ! -x "$installer" ]; then
+            warnEcho "private settings: $installer is not executable; run chmod +x on it"
+          else
             PATH="$PATH:/usr/bin:/bin" run "$installer" \
               || warnEcho "private settings: $installer failed"
-          else
-            warnEcho "private settings: $installer not found; clone the repo there or rerun ./bootstrap.sh"
           fi
         '';
       };
