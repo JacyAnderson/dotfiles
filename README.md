@@ -20,6 +20,8 @@ Running the switch builds:
 - tmux config (fleet workflow for running multiple Claude Code agents)
 - Agent configs: a tool-agnostic `home/AGENTS.md` shared by Claude, Codex, and
   opencode, plus a Claude-specific overlay in `home/claude/CLAUDE.md`
+- Opt-in modules a machine can switch on, such as OpenSuperWhisper dictation (see
+  [Opt-in modules](#opt-in-modules))
 
 ## One repo, many machines
 
@@ -44,6 +46,71 @@ second checkout keep pulling cleanly forever.
 
 Whatever differs between contexts lives in `profiles/<profile>/`: `system.nix` for
 the system layer (Homebrew, launchd background services) and `home.nix` for the user layer (git identity).
+
+## Opt-in modules
+
+Features that not every machine wants live in `modules/`, one file each. Every
+module is imported everywhere and does nothing until the machine's host file turns
+it on under `my`:
+
+```nix
+# hosts/Jacys-MacBook-Air.nix
+{
+  user = "jacyanderson";
+  system = "aarch64-darwin";
+  profile = "personal";
+  my = {
+    opensuperwhisper = {
+      enable = true;
+      model = "ggml-large-v3-turbo-q5_0";
+    };
+  };
+}
+```
+
+A host file without `my` gets none of them. A misspelled module name fails the
+build with "The option `my.<name>' does not exist" rather than being ignored.
+
+| Module | What it does |
+|---|---|
+| `opensuperwhisper` | Installs the OpenSuperWhisper cask, fetches a Whisper model, and sets the hotkey and transcription preferences |
+
+### OpenSuperWhisper
+
+Local Whisper dictation: hold Ctrl+Option+Space to record, release to paste the
+transcript into the focused app. The module sets, on every switch:
+
+- the record key to Ctrl+Option+Space with hold-to-record, English, suppress
+  blank audio, and a space after each sentence. The app's own defaults, Option+`
+  and right Option alone, get in the way of typing accented characters, which is
+  why the key is moved. Override it with `settings.KeyboardShortcuts_toggleRecord`
+  (a JSON string of Carbon key code and modifiers).
+- the model, when `model` is set: one of `ggml-large-v3-turbo-q5_0` (574 MB),
+  `ggml-large-v3-turbo-q8_0` (874 MB) or `ggml-large-v3-turbo` (1.6 GB), fetched
+  once into the Nix store with a pinned hash and selected in the app. With
+  `model = null` the app's first-run onboarding picks one instead.
+- anything in `my.opensuperwhisper.settings`, written as-is to the
+  `ru.starmel.OpenSuperWhisper` defaults domain, e.g.
+  `settings.initialPrompt = "nix-darwin, home-manager, herdr";` for vocabulary
+  the model should expect
+
+Declared settings are re-applied on every `./rebuild.sh`, so a change made in the
+app's Settings window to one of them lasts only until the next rebuild. Make the
+change here instead. Keys you don't declare, such as the chosen microphone, keep
+whatever the app saved.
+
+Two things macOS will not let a config file do. After the first rebuild that
+enables the module, launch OpenSuperWhisper once and grant:
+
+1. **Microphone**, which the app asks for when it starts.
+2. **Accessibility**, in System Settings, Privacy & Security, Accessibility. It
+   needs this to paste the transcript.
+
+The cask is Apple Silicon only, and the build fails with a clear message if the
+module is enabled on an Intel host. Once cleanup is `"zap"`, disabling the module
+uninstalls the app with its zap stanza, which moves
+`~/Library/Application Support/ru.starmel.OpenSuperWhisper` (recordings included)
+to the Trash.
 
 ## How this was adopted (not a fresh machine)
 
@@ -120,7 +187,9 @@ running config.
 - `flake.nix` - the entry point. Wires up nixpkgs, nix-darwin, home-manager, and
   nix-homebrew, and turns every file in `hosts/` into a machine.
 - `hosts/<LocalHostName>.nix` - one file per machine: its macOS user, its
-  architecture, and which profile it uses. The only per-machine content in the repo.
+  architecture, which profile it uses, and which opt-in modules it turns on. The
+  only per-machine content in the repo.
+- `modules/` - opt-in features, each inert until a host enables it under `my`.
 - `profiles/<profile>/` - what differs between contexts. `system.nix` (Homebrew)
   and `home.nix` (git identity).
 - `configuration.nix` - system-level config shared by every machine: macOS defaults.

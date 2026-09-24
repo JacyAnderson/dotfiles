@@ -40,6 +40,10 @@
         specialArgs = { inherit host hostName; user = host.user; };
         modules = [
           ./configuration.nix
+          # Opt-in features: every module is imported, and the host file's
+          # `my` attrset (see modules/default.nix) decides which ones are on.
+          ./modules
+          { my = host.my or { }; }
           nix-homebrew.darwinModules.nix-homebrew
           home-manager.darwinModules.home-manager
           {
