@@ -10,4 +10,12 @@
   user = "jacyanderson";
   system = "aarch64-darwin"; # x86_64-darwin on an Intel Mac
   profile = "personal";
+
+  # Opt-in modules from modules/. Anything not listed here stays off.
+  my = {
+    opensuperwhisper = {
+      enable = true;
+      model = "ggml-large-v3-turbo-q5_0";
+    };
+  };
 }

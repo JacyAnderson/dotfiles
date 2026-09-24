@@ -11,12 +11,13 @@ The machine is a **cache of this repo**, not a pet configured by hand. Every
 old generations stick around, which is why rollback is trivial and
 experimentation is safe.
 
-The repo has **five layers**, top of file to bottom of stack:
+The repo has **six layers**, top of file to bottom of stack:
 
 | Layer | File | Owns |
 |---|---|---|
 | Flake | `flake.nix` + `flake.lock` | *Which versions of everything* (pinned inputs), and which machines exist |
-| Host | `hosts/<LocalHostName>.nix` | *This* machine: its macOS user, architecture, profile |
+| Host | `hosts/<LocalHostName>.nix` | *This* machine: its macOS user, architecture, profile, opt-in modules |
+| Modules | `modules/*.nix` | Optional features, each off until a host sets `my.<name>.enable` |
 | nix-darwin | `configuration.nix` + `profiles/*/system.nix` | macOS itself: `system.defaults`, Homebrew orchestration |
 | home-manager | `home.nix` + `profiles/*/home.nix` | Your user: CLI packages, zsh, git, starship |
 | Plain dotfiles | `home/.config/*` | wezterm/nvim/herdr configs, symlinked edit-in-place |
