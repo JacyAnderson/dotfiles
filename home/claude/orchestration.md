@@ -8,7 +8,7 @@ Related: model-routing doctrine (below + `~/.claude/CLAUDE.md`), per-project str
 
 ## 0. Model routing (recap — full doctrine in ~/.claude/CLAUDE.md)
 
-Pay for judgment, not grunt work; don't automate the matching. Default `opusplan` (Opus plans, Sonnet executes). Tier subagents by *output*: ordinary code → `sonnet` (Sonnet 5.5), hefty or vital implementation (big or ambiguous multi-file work, risky refactors, auth, money, personal data, privacy, security, schema and migrations) and planning/investigation/design → `opus` (Opus 5.5), judgment → `sonnet`, research/search → `haiku`. Escalate to Fable 5 deliberately (`/model fable` or the `architecture-advisor` agent) only for high-blast-radius, hard-to-reverse work. No custom per-prompt router.
+Pay for judgment, not grunt work; don't automate the matching. Default `opus` (Opus 5.5 orchestrates and plans; code moves down to Sonnet 5.5 through the subagent tiers). Not `opusplan`: it runs Sonnet outside plan mode. Tier subagents by *output*: ordinary code → `sonnet` (Sonnet 5.5), hefty or vital implementation (big or ambiguous multi-file work, risky refactors, auth, money, personal data, privacy, security, schema and migrations) and planning/investigation/design → `opus` (Opus 5.5), judgment → `sonnet`, research/search → `haiku`. Escalate to Fable 5 deliberately (`/model fable` or the `architecture-advisor` agent) only for high-blast-radius, hard-to-reverse work. No custom per-prompt router.
 
 ## 1. The one decision: pick the mode
 
