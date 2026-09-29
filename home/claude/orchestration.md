@@ -8,7 +8,7 @@ Related: model-routing doctrine (below + `~/.claude/CLAUDE.md`), per-project str
 
 ## 0. Model routing (recap — full doctrine in ~/.claude/CLAUDE.md)
 
-Pay for judgment, not grunt work; don't automate the matching. Default `opusplan` (Opus plans, Sonnet executes). Tier subagents by *output*: code/architecture → `inherit`, judgment → `sonnet`, research/search → `haiku`. Escalate to Fable 5 deliberately (`/model fable` or the `architecture-advisor` agent) only for high-blast-radius, hard-to-reverse work. No custom per-prompt router.
+Pay for judgment, not grunt work; don't automate the matching. Default `opusplan` (Opus plans, Sonnet executes). Tier subagents by *output*: ordinary code → `sonnet` (Sonnet 5.5), hefty or vital implementation (big or ambiguous multi-file work, risky refactors, auth, money, personal data, privacy, security, schema and migrations) and planning/design → `opus` (Opus 5.5), judgment → `sonnet`, research/search → `haiku`. Escalate to Fable 5 deliberately (`/model fable` or the `architecture-advisor` agent) only for high-blast-radius, hard-to-reverse work. No custom per-prompt router.
 
 ## 1. The one decision: pick the mode
 
@@ -69,7 +69,7 @@ A **stream** = a worktree + (ideally) an isolated runtime (port, auth URL, DB).
 
 ## 8. Sharing agents across projects (hybrid model)
 
-Global `~/.claude/agents/` = umbrella (all projects); project `.claude/agents/` = subsidiary. **On a name collision, the project agent overrides the global one** — so a project can specialize a shared role. Model tiers travel with each agent (`inherit`/`sonnet`/`haiku`/`fable`).
+Global `~/.claude/agents/` = umbrella (all projects); project `.claude/agents/` = subsidiary. **On a name collision, the project agent overrides the global one** — so a project can specialize a shared role. Model tiers travel with each agent (`opus`/`sonnet`/`haiku`/`fable`).
 
 **Hybrid split (decided):**
 - **Universal → promote to global archetypes** (generic bodies that read each project's own `CLAUDE.md`/ADRs for context): `architecture-advisor` (fable), `api-engineer`, `auth-engineer`, `infrastructure-engineer`, `qa-engineer`, `technical-architect`, and the business analysts (`financial-analyst`, `market-analyst`, `operations-analyst`, `product-strategist`, `growth-strategist`, `user-researcher`).
